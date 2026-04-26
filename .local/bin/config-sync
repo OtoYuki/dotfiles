@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Lazy sync for dotfiles
+
+# Define config alias locally
+config="/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
+
+echo "=> Staging all modified tracked files..."
+$config add -u
+
+if $config diff-index --quiet HEAD --; then
+    echo "=> No changes to commit."
+    exit 0
+fi
+
+# Commit with timestamp
+timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+echo "=> Committing changes..."
+$config commit -m "Auto-sync dotfiles: $timestamp"
+
+echo "=> Pushing to GitHub..."
+$config push
+echo "=> Sync complete!"
