@@ -1,0 +1,182 @@
+* {
+    /* Gruvbox Evening colors derived from your waybar and wallpaper */
+    bg0-hard:     #1d2021;
+    bg0:          #282828;
+    bg1:          #3c3836;
+    bg2:          #504945;
+    
+    fg0:          #fbf1c7;
+    fg1:          #ebdbb2;
+    fg2:          #d5c4a1;
+    
+    red:          #fb4934;
+    green:        #b8bb26;
+    yellow:       #fabd2f;
+    blue:         #83a598;
+    purple:       #d3869b;
+    aqua:         #8ec07c;
+    orange:       #fe8019;
+
+    /* Theme mappings */
+    background:                  @bg0-hard;
+    background-color:            transparent;
+    foreground:                  @fg1;
+    border-color:                @bg2;
+    separatorcolor:              @bg1;
+    
+    normal-background:           transparent;
+    normal-foreground:           @fg1;
+    alternate-normal-background: @bg0;
+    alternate-normal-foreground: @fg1;
+    selected-normal-background:  @bg2;
+    selected-normal-foreground:  @fg0;
+    
+    active-background:           transparent;
+    active-foreground:           @orange;
+    alternate-active-background: transparent;
+    alternate-active-foreground: @orange;
+    selected-active-background:  @orange;
+    selected-active-foreground:  @bg0-hard;
+    
+    urgent-background:           transparent;
+    urgent-foreground:           @red;
+    alternate-urgent-background: transparent;
+    alternate-urgent-foreground: @red;
+    selected-urgent-background:  @red;
+    selected-urgent-foreground:  @bg0-hard;
+}
+
+window {
+    background-color: @background;
+    border:           1px;
+    border-color:     @orange;
+    padding:          5;
+}
+
+mainbox {
+    border:  0;
+    padding: 0;
+}
+
+message {
+    border:       1px dash 0px 0px ;
+    border-color: @separatorcolor;
+    padding:      1px ;
+}
+
+textbox {
+    text-color: @foreground;
+}
+
+listview {
+    fixed-height: 0;
+    border:       1px dash 0px 0px ;
+    border-color: @separatorcolor;
+    spacing:      2px ;
+    scrollbar:    false;
+    padding:      2px 0px 0px ;
+}
+
+element {
+    border:  0;
+    padding: 2px ;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+element-icon {
+    background-color: inherit;
+    padding: 0 4px 0 0;
+}
+
+element.normal.normal {
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
+}
+
+element.normal.urgent {
+    background-color: @urgent-background;
+    text-color:       @urgent-foreground;
+}
+
+element.normal.active {
+    background-color: @active-background;
+    text-color:       @active-foreground;
+}
+
+element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color:       @selected-urgent-foreground;
+}
+
+element.selected.active {
+    background-color: @selected-active-background;
+    text-color:       @selected-active-foreground;
+}
+
+element.alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:       @alternate-normal-foreground;
+}
+
+element.alternate.urgent {
+    background-color: @alternate-urgent-background;
+    text-color:       @alternate-urgent-foreground;
+}
+
+element.alternate.active {
+    background-color: @alternate-active-background;
+    text-color:       @alternate-active-foreground;
+}
+
+sidebar {
+    border:       1px dash 0px 0px ;
+    border-color: @separatorcolor;
+}
+
+button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+inputbar {
+    spacing:    0;
+    text-color: @normal-foreground;
+    padding:    4px ;
+}
+
+case-indicator {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+
+entry {
+    spacing:    0;
+    text-color: @normal-foreground;
+    placeholder-color: @bg2;
+}
+
+prompt {
+    spacing:    0;
+    text-color: @orange;
+    font: "0xProto Nerd Font Bold 10";
+}
+
+inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+
+textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3em 0em 0em ;
+    text-color: @orange;
+}

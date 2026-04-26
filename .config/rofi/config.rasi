@@ -1,0 +1,25 @@
+/* ~/.config/rofi/config.rasi */
+configuration {
+    /* Core Settings */
+    modi: "drun,run,filebrowser";
+    font: "0xProto Nerd Font 10";
+    show-icons: true;
+    icon-theme: "Papirus"; /* Change to whatever icon pack you use */
+    
+    /* Search Behavior */
+    matching: "fuzzy";
+    sort: true;
+    sorting-method: "fzf";
+    
+    /* UI Text (replaces the default labels) */
+    display-drun: "Apps";
+    display-run: "Bin";
+    display-filebrowser: "Files";
+    display-clipboard: "Clip";
+    
+    /* Format of the entries */
+    drun-display-format: "{name}\n[<span weight='light' size='small'><i>{generic}</i></span>]";
+}
+
+/* Import our new color theme */
+@theme "colors"

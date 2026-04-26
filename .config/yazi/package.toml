@@ -1,0 +1,24 @@
+[[plugin.deps]]
+use = "yazi-rs/flavors:gruvbox-material"
+rev = "0670801"
+hash = "99aa06d3014798d86001c324468d497f"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "babfd0f"
+hash = "6fa6a05a81c98dd000fbca3cca6e9682"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "babfd0f"
+hash = "26db011a778f261d730d4f5f8bf24b3f"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:max-preview"
+rev = "ac82af3"
+hash = "99aa06d3014798d86001c324468d497f"
+
+[[flavor.deps]]
+use = "bennyyip/gruvbox-dark"
+rev = "619fdc5"
+hash = "d4c7003ec6dc4efd5d3a050d5c2f2575"

@@ -1,0 +1,59 @@
+/* Gruvbox Evening - Inspired by the provided wallpaper */
+
+/* Gruvbox Palette */
+@define-color bg0_h      #1d2021; /* Hard dark background */
+@define-color bg0        #282828; /* Medium dark background */
+@define-color bg1        #3c3836;
+@define-color bg2        #504945;
+@define-color bg3        #665c54;
+@define-color bg4        #7c6f64;
+
+@define-color fg0        #fbf1c7;
+@define-color fg         #ebdbb2;
+@define-color fg2        #d5c4a1;
+@define-color fg3        #bdae93;
+@define-color fg4        #a89984;
+
+@define-color red        #fb4934;
+@define-color green      #b8bb26;
+@define-color yellow     #fabd2f;
+@define-color blue       #83a598;
+@define-color purple     #d3869b;
+@define-color aqua       #8ec07c;
+@define-color orange     #fe8019;
+@define-color gray       #928374;
+
+/*
+	br - border
+	bg - background
+	fg - foreground
+*/
+
+/* Main colors - Tuned for the wallpaper */
+
+@define-color accent         @orange;        /* The glowing cloud highlight */
+@define-color main-br        @bg2;           /* Subtle border */
+@define-color main-bg        @bg0_h;         /* Deep silhouette black/grey */
+@define-color main-fg        @fg;            /* Standard readable cream */
+@define-color hover-bg       @bg1;           /* Hover state background */
+@define-color hover-fg       alpha(@main-fg, 0.75);
+@define-color outline        shade(@main-bg, 0.5); /* Matching original theme structure */
+
+/* Module colors */
+
+@define-color workspaces     @bg0;
+@define-color temperature    @bg0;
+@define-color memory         @bg1;
+@define-color cpu            @bg0;
+@define-color time           @bg0;
+@define-color date           @bg1;
+@define-color tray           @bg0;
+@define-color volume         @bg0;
+@define-color backlight      @bg1;
+@define-color battery        @bg0;
+
+/* State colors */
+
+@define-color warning        @yellow;
+@define-color critical       @red;
+@define-color charging       @green;
