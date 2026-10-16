@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          git ls-files -z | xargs -0 grep -lIE '^#!.*\b(bash|sh)\b' -- \
+            | grep -v '^\.zshrc$' \
+            | xargs shellcheck -S warning
+      - name: json / toml
+        run: |
+          # zed's settings.json is JSONC (comments, trailing commas)
+          git ls-files '*.json' ':!.config/zed/settings.json' | xargs -r -n1 jq empty
+          git ls-files '*.toml' | xargs -r python3 -c 'import sys, tomllib; [tomllib.load(open(f, "rb")) for f in sys.argv[1:]]'
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  hyprland:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - run: pacman -Syu --noconfirm --needed git hyprland
+      - uses: actions/checkout@v4
+      - name: verify-config (generic machine)
+        run: |
+          install -Dm644 .config/hypr/theme.lua ~/.config/hypr/theme.lua
+          cp -r .config/hypr/hosts ~/.config/hypr/
+          Hyprland --verify-config -c .config/hypr/hyprland.lua | tee /tmp/out
+          grep -q 'config ok' /tmp/out
+      - name: verify-config (each host profile)
+        run: |
+          for m in .config/dotfiles/hosts/*/match; do
+            product=$(head -n1 "$m")
+            sed "s|first_line(\"/sys/class/dmi/id/product_name\")|\"$product\"|" .config/hypr/hyprland.lua > /tmp/host.lua
+            Hyprland --verify-config -c /tmp/host.lua | tee /tmp/out
+            grep -q 'config ok' /tmp/out
+          done
+
+  install:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - run: pacman -Syu --noconfirm --needed git sudo
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: packages resolve
+        run: |
+          sed -e 's/#.*//' -e '/^\s*$/d' .config/dotfiles/packages/pacman.txt .config/dotfiles/hosts/*/pacman.txt \
+            | xargs pacman -Sp --needed >/dev/null
+      - name: install as a fresh user, twice
+        run: |
+          git config --system --add safe.directory '*'
+          useradd -m ricer
+          echo '# existing' > /home/ricer/.zshrc && chown ricer: /home/ricer/.zshrc
+          export DOTFILES_REPO="$GITHUB_WORKSPACE" DOTFILES_BRANCH="$GITHUB_REF_NAME"
+          for run in 1 2; do
+            su ricer -c "DOTFILES_REPO=$DOTFILES_REPO DOTFILES_BRANCH=$DOTFILES_BRANCH DMI_PRODUCT=ci \
+              bash $GITHUB_WORKSPACE/.config/dotfiles/install.sh --no-packages --no-takt -y"
+          done
+          su ricer -c '
+            set -e
+            test -f ~/.config/hypr/hyprland.lua
+            ls ~/.dotfiles-backup/*/.zshrc
+            for f in $(sed -e "s/#.*//" -e "/^\s*$/d" ~/.config/dotfiles/hosts/*/paths); do test ! -e ~/$f; done
+            test -z "$(git --git-dir=$HOME/.cfg --work-tree=$HOME status --porcelain)"
+          '
