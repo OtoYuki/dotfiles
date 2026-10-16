@@ -1,118 +1,24 @@
-/*---------------
-    Indicator
----------------*/
+/* ==========================================================================
+   Clock Centerpiece (Master Chronometer Pod)
+   ========================================================================== */
 
-#keyboard-state label,
-#language {
-	margin-right: 12px;
-	color: @hover-fg;
-}
-
-/*-----------------
-    Temperature
------------------*/
-
-#custom-left_div.2 {
-	color: @temperature;
-}
-#temperature {
-	background-color: @temperature;
+#clock {
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 3px 18px 3px 36px;
+	margin: 2px 0;
+	color: @sota-bone;
+	background-image: url("/home/s1re/.config/waybar/assets/icons/starburst.svg");
+	background-repeat: no-repeat;
+	background-position: 11px center;
+	background-size: 16px 16px;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.12);
+	transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/*------------
-    Memory
-------------*/
-
-#custom-left_div.3 {
-	background-color: @temperature;
-	color: @memory;
-}
-#memory {
-	background-color: @memory;
-}
-
-/*---------
-    CPU
----------*/
-
-#custom-left_div.4 {
-	background-color: @memory;
-	color: @cpu;
-}
-#cpu {
-	background-color: @cpu;
-}
-#custom-left_inv.1 {
-	color: @cpu;
-}
-
-/*-----------------
-    Distro icon
------------------*/
-
-#custom-left_div.5,
-#custom-right_div.2 {
-	color: @accent;
-}
-#custom-distro {
-	padding: 0 10px 0 5px;
-	background-color: @accent;
-	color: @main-bg;
-}
-
-/*--------------------
-    Idle inhibitor
---------------------*/
-
-#custom-right_inv.1 {
-	color: @time;
-}
-#idle_inhibitor {
-	background-color: @time;
-}
-
-/*----------
-    Time
-----------*/
-
-#clock.time {
-	padding-right: 6px;
-	background-color: @time;
-}
-#custom-right_div.3 {
-	background-color: @date;
-	color: @time;
-}
-
-/*----------
-    Date
-----------*/
-
-#clock.date {
-	padding-left: 6px;
-	background-color: @date;
-}
-#custom-right_div.4 {
-	background-color: @tray;
-	color: @date;
-}
-
-/*-----------------
-    System tray
------------------*/
-
-#network {
-	background-color: @tray;
-	padding: 0 6px 0 4px;
-}
-#bluetooth {
-	background-color: @tray;
-	padding: 0 5px;
-}
-#custom-update {
-	background-color: @tray;
-	padding: 0 8px 0 2px;
-}
-#custom-right_div.5 {
-	color: @tray;
+#clock:hover {
+	border-color: @sota-ochre;
+	background-color: @sota-panel-hover;
+	box-shadow: 0 0 10px rgba(216, 166, 100, 0.2), inset 0 1px 0 rgba(216, 166, 100, 0.2);
 }

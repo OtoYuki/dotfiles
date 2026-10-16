@@ -1,4 +1,9 @@
 [tools]
+"github:kinde-oss/kinde-cli" = "latest"
+java = "temurin-17.0.20+8"
 node = "latest"
 "npm:@google/gemini-cli" = "latest"
+"npm:netlify-cli" = "latest"
+"npm:wrangler" = "latest"
+railway = { version = "latest", exe = "railway" }
 uv = "latest"

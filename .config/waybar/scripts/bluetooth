@@ -48,10 +48,10 @@ power_on() {
 				exit 1
 			fi
 			;;
-		*)
-			return 0
-			;;
 	esac
+
+	bluetoothctl agent on > /dev/null
+	bluetoothctl default-agent > /dev/null
 
 	notify-send "Bluetooth On" -i "network-bluetooth-activated" \
 		-h string:x-canonical-private-synchronous:bluetooth
@@ -123,6 +123,8 @@ select_device() {
 pair_and_connect() {
 	local paired
 	paired=$(bluetoothctl info "$ADDRESS" | awk '/Paired/ {print $2}')
+	local trusted
+	trusted=$(bluetoothctl info "$ADDRESS" | awk '/Trusted/ {print $2}')
 
 	if [[ $paired == no ]]; then
 		printf "Pairing..."
@@ -131,6 +133,11 @@ pair_and_connect() {
 			notify-send "Bluetooth" "Failed to pair" -i "package-purge"
 			exit 1
 		fi
+	fi
+
+	if [[ $trusted == no ]]; then
+		printf "\nTrusting..."
+		bluetoothctl trust "$ADDRESS" > /dev/null
 	fi
 
 	printf "\nConnecting..."

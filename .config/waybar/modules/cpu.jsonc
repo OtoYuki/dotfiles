@@ -1,27 +1,11 @@
 {
 	"cpu": {
-		"interval": 10,
-		"format": "󰍛 {usage}%",
-		"format-warning": "󰀨 {usage}%",
-		"format-critical": "󰀨 {usage}%",
-		// "format-icons":
-		"min-length": 7,
-		"max-length": 7,
-		// "align":
-		// "justify":
-		// "rotate":
+		"interval": 2,
+		"format": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>CPU</span> <span font_family='Geist Mono' font_weight='bold' foreground='#999208'>{usage}%</span>",
 		"states": {
 			"warning": 75,
 			"critical": 90
 		},
-		// "on-click":
-		// "on-click-middle":
-		// "on-click-right":
-		// "on-update":
-		// "on-scroll-up":
-		// "on-scroll-down":
-		// "smooth-scrolling-threshold":
-		"tooltip": false
-		// "expand":
+		"tooltip-format": "CPU Compute: {usage}%\nCores: {cores}"
 	}
 }

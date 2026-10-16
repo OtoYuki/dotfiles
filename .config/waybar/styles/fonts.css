@@ -1,28 +1,54 @@
+/* ==========================================================================
+   Typography: Geist Mono, Freigeist & Goga Micrographics Hierarchy
+   Strict integer sizing to eliminate Cairo subpixel font blurring
+   ========================================================================== */
+
 * {
-	font-family: "0xProto Nerd Font";
-	font-weight: bold;
+	font-family: "GeistMono Nerd Font", "Geist Mono", monospace;
+	font-weight: 700;
+	font-size: 13px;
+	letter-spacing: 0px;
+}
+
+/* Master Chronometer Hero */
+#clock {
+	font-family: "Freigeist", "GeistMono Nerd Font", monospace;
+	font-weight: 800;
 	font-size: 14px;
+	letter-spacing: 0.2px;
 }
 
-#window label,
-#mpris,
+/* Operational Context (Left) */
+#window {
+	font-family: "GeistMono Nerd Font", "Geist Mono", monospace;
+	font-weight: 600;
+	font-size: 12px;
+}
+
+#workspaces button {
+	font-family: "Geist Pixel Circle", "Geist Mono", monospace;
+	font-weight: 800;
+	font-size: 12px;
+}
+
+/* Media Island */
+#mpris {
+	font-family: "Geist Mono", monospace;
+	font-weight: 700;
+	font-size: 12px;
+	letter-spacing: 0px;
+}
+
+/* Hardware Telemetry Deck */
+#hardware > *,
+#hardware label {
+	font-family: "GeistMono Nerd Font", "Geist Mono", monospace;
+	font-weight: 700;
+	font-size: 12px;
+}
+
 tooltip label {
-	font-weight: normal;
-}
-
-#workspaces button.active label,
-#workspaces button.focused label,
-#custom-distro {
-	font-size: 20px;
-}
-
-#custom-power {
-	font-size: 18px;
-}
-
-#custom-left_div,
-#custom-left_inv,
-#custom-right_div,
-#custom-right_inv {
-	font-size: 22px;
+	font-family: "GeistMono Nerd Font", "Geist Mono", monospace;
+	font-weight: 600;
+	font-size: 12px;
 }

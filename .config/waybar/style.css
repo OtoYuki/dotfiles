@@ -1,43 +1,57 @@
-@import "gruvbox-evening.css";
-
-* {
-	all: initial; /* Reset GTK theme */
-	color: @main-fg;
-}
-
+@import "theme.css";
+@import "styles/nothing.css";
 @import "styles/fonts.css";
-@import "styles/modules-center.css";
 @import "styles/modules-left.css";
+@import "styles/modules-center.css";
 @import "styles/modules-right.css";
 @import "styles/states.css";
 
-.module {
-	margin-bottom: -1px;
+* {
+	all: initial;
+	color: @sota-bone;
+	border-radius: 0px;
 }
 
-#waybar {
-	background-color: @outline;
+.module {
+	margin-bottom: 0px;
 }
+
+window#waybar {
+	background-color: #141C10;
+	border-bottom: 1px solid #2c3620;
+	box-shadow: 0 1px 0 #141C10;
+	border-radius: 0px;
+}
+
 #waybar > box {
-	margin: 4px;
-	background-color: @main-bg;
+	margin: 0px;
+	padding: 3px 14px;
+	background-color: #141C10;
+	border: none;
+	border-radius: 0px;
 }
 
 button {
-	border-radius: 16px;
+	border-radius: 2px;
 	min-width: 16px;
-	padding: 0 10px;
+	padding: 0 6px;
 }
+
 button:hover {
-	background-color: @hover-bg;
-	color: @hover-fg;
+	background-color: @sota-panel-hover;
+	color: @sota-bone;
 }
 
 tooltip {
-	border: 2px solid @main-br;
-	border-radius: 10px;
-	background-color: @main-bg;
+	border: 1px solid @sota-border;
+	border-radius: 2px;
+	background-color: @sota-void;
+	color: @sota-bone;
+	padding: 6px 12px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
 }
-tooltip > box {
-	padding: 0 6px;
+
+tooltip label {
+	color: @sota-pista;
+	padding: 2px;
 }

@@ -1,36 +1,10 @@
 {
 	"mpris": {
-		// "player":
-		// "ignored-players":
-		// "interval":
-		"format": "{player_icon} {title} - {artist}",
-		"format-paused": "{status_icon} {title} - {artist}",
+		"format": "<span font_family='Goga' font_size='8pt' font_weight='bold' foreground='#999208'>PLAY</span> <span font_family='Geist Mono' font_weight='bold' foreground='#FBFFE1'>{title}</span>",
+		"format-paused": "<span font_family='Goga' font_size='8pt' font_weight='bold' foreground='#5A6042'>PAUSE</span> <span font_family='Geist Mono' font_weight='bold' foreground='#5A6042'>{title}</span>",
 		"tooltip-format": "Playing: {title} - {artist}",
 		"tooltip-format-paused": "Paused: {title} - {artist}",
-		// "enable-tooltip-len-limits":
-		// "on-click":
-		// "on-click-middle":
-		// "on-click-right":
-		"player-icons": {
-			"default": "󰐊"
-		},
-		"status-icons": {
-			"paused": "󰏤"
-		},
-		// "artist-len":
-		// "album-len":
-		// "title-len":
-		// "dynamic-len":
-		// "dynamic-order":
-		// "dynamic-separator":
-		// "dynamic-importance-order":
-		// "truncate-hours":
-		// "ellipsis":
-		// "rotate":
-		// "min-length":
-		"max-length": 1000
-		// "align":
-		// "justify":
-		// "expand":
+		"max-length": 32,
+		"ellipsis": "…"
 	}
 }

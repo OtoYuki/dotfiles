@@ -1,38 +1,24 @@
 {
 	"hyprland/workspaces": {
-		// "active-only":
-		// "hide-active":
-		// "all-outputs":
 		"format": "{icon}",
 		"format-icons": {
-			"active": "",
-			"default": ""
+			"1": "01",
+			"2": "02",
+			"3": "03",
+			"4": "04",
+			"5": "05",
+			"6": "06",
+			"7": "07",
+			"8": "08",
+			"9": "09",
+			"10": "10",
+			"default": "{id}"
 		},
 		"persistent-workspaces": {
 			"*": 5
 		},
-		// "persistent-only":
-		// "show-special":
-		// "special-visible-only":
-		// "sort-by":
-		// "window-rewrite":
-		// "window-rewrite-default":
-		// "format-window-separator":
-		"workspace-taskbar": {
-			// "enable":
-			// "update-active-window":
-			// "format":
-			// "icon-size":
-			// "icon-theme":
-			// "orientation":
-			// "ignore-list":
-			// "on-click-window":
-		},
-		// "move-to-monitor":
-		// "ignore-workspaces":
 		"on-scroll-up": "hyprctl dispatch workspace +1",
 		"on-scroll-down": "hyprctl dispatch workspace -1",
-		// "expand":
 		"cursor": true
 	}
 }

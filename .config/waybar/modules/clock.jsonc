@@ -1,71 +1,26 @@
 {
-	"clock#time": {
-		// "interval":
-		"format": "{:%H:%M}",
-		// "timezone":
-		// "timezones":
-		// "locale":
-		"min-length": 5,
-		"max-length": 5,
-		// "rotate": 0,
-		// "on-click":
-		// "on-click-middle":
-		// "on-click-right":
-		// "on-scroll-up":
-		// "on-scroll-down":
-		// "smooth-scrolling-threshold":
-		// "tooltip":
-		"tooltip-format": "<b>Standard Time</b>: <span text_transform='lowercase'>{:%I:%M %p}</span>"
-		// "menu":
-		// "menu-file":
-		// "menu-actions":
-		// "expand":
-	},
-
-	/*--------------
-	    Calendar
-	--------------*/
-
-	"clock#date": {
-		// "interval":
-		"format": "󰸗 {:%d-%m}",
-		// "timezone":
-		// "timezones":
-		// "locale":
-		"min-length": 8,
-		"max-length": 8,
-		// "rotate":
-		// "on-click":
-		// "on-click-middle":
-		// "on-click-right":
-		// "on-scroll-up":
-		// "on-scroll-down":
-		// "smooth-scrolling-threshold":
-		// "tooltip":
-		"tooltip-format": "{calendar}",
-		// "menu":
-		// "menu-file":
-		// "menu-actions":
-		// "expand":
+	"clock": {
+		"interval": 1,
+		"format": "<span font_family='Freigeist' font_weight='800' font_size='11pt' foreground='#FBFFE1'>{0:%H:%M}</span> <span font_family='Geist Mono' foreground='#5A6042'>::</span> <span font_family='Goga' font_weight='bold' font_size='10pt' foreground='#D1CF8B'>{0:%a %d %b}</span>",
+		"format-alt": "<span font_family='Freigeist' font_weight='800' font_size='11pt' foreground='#FBFFE1'>{0:%H:%M:%S}</span> <span font_family='Geist Mono' foreground='#999208'>::</span> <span font_family='Goga' font_weight='bold' font_size='10pt' foreground='#FBFFE1'>{0:%Y-%m-%d}</span>",
+		"tooltip-format": "<tt><small>{calendar}</small></tt>",
 		"calendar": {
 			"mode": "month",
-			"mode-mon-col": 6,
-			// "week-pos":
-			// "on-scroll":
+			"mode-mon-col": 3,
+			"weeks-pos": "right",
+			"on-scroll": 1,
 			"format": {
-				"months": "<span alpha='100%'><b>{}</b></span>",
-				"days": "<span alpha='90%'>{}</span>",
-				// "weeks":
-				"weekdays": "<span alpha='80%'><i>{}</i></span>",
-				"today": "<span alpha='100%'><b><u>{}</u></b></span>"
+				"months": "<span color='#FBFFE1'><b>{}</b></span>",
+				"days": "<span color='#D1CF8B'>{}</span>",
+				"weeks": "<span color='#5A6042'><b>W{}</b></span>",
+				"weekdays": "<span color='#999208'><b>{}</b></span>",
+				"today": "<span color='#141C10' background='#D8A664'><b><u>{}</u></b></span>"
 			}
 		},
 		"actions": {
-			"on-click": "mode"
-			// "on-click-middle":
-			// "on-click-right":
-			// "on-scroll-up":
-			// "on-scroll-down":
+			"on-click-right": "mode",
+			"on-scroll-up": "shift_up",
+			"on-scroll-down": "shift_down"
 		}
 	}
 }

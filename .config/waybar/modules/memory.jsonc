@@ -1,31 +1,11 @@
 {
 	"memory": {
-		"interval": 10,
-		"format": "󰘚 {percentage}%",
-		"format-warning": "󰀧 {percentage}%",
-		"format-critical": "󰀧 {percentage}%",
-		// "format-icons":
-		// "rotate":
+		"interval": 4,
+		"format": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>RAM</span> <span font_family='Geist Mono' font_weight='bold' foreground='#D1CF8B'>{percentage}%</span>",
 		"states": {
 			"warning": 75,
 			"critical": 90
 		},
-		"min-length": 7,
-		"max-length": 7,
-		// "align":
-		// "justify":
-		// "on-click":
-		// "on-click-middle":
-		// "on-click-right":
-		// "on-update":
-		// "on-scroll-up":
-		// "on-scroll-down":
-		// "smooth-scrolling-threshold":
-		// "tooltip":
-		"tooltip-format": "Memory Used: {used:0.0f}/{total:0.0f} GiB"
-		// "menu":
-		// "menu-file":
-		// "menu-actions":
-		// "expand":
+		"tooltip-format": "Memory: {used:0.1f}GiB / {total:0.1f}GiB ({percentage}%)"
 	}
 }

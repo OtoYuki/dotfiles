@@ -1,40 +1,17 @@
 {
 	"network": {
-		// "interface":
-		// "rfkill":
-		"interval": 10,
-		// "family":
-		"format": "󰤨",
-		"format-ethernet": "󰈀",
-		"format-wifi": "{icon}",
-		// "format-linked":
-		"format-disconnected": "󰤯",
-		"format-disabled": "󰤮",
-		// "format-alt":
-		"format-icons": [
-			"󰤟", "󰤢", "󰤥", "󰤨"
-		],
-		// "rotate":
-		"min-length": 2,
-		"max-length": 2,
-		// "align":
-		// "justify":
+		"interval": 8,
+		"format": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>NET</span> <span font_family='Geist Mono' font_weight='bold' foreground='#999208'>OK</span>",
+		"format-wifi": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>NET</span> <span font_family='Geist Mono' font_weight='bold' foreground='#999208'>{signalStrength}%</span>",
+		"format-ethernet": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>NET</span> <span font_family='Geist Mono' font_weight='bold' foreground='#999208'>ETH</span>",
+		"format-disconnected": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>NET</span> <span font_family='Geist Mono' font_weight='bold' foreground='#5A6042'>--</span>",
+		"format-disabled": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>NET</span> <span font_family='Geist Mono' font_weight='bold' foreground='#BE5D3C'>OFF</span>",
 		"on-click": "kitty -e ~/.config/waybar/scripts/network",
-		// "on-click-middle":
 		"on-click-right": "~/.config/waybar/scripts/network off",
-		// "on-update":
-		// "on-scroll-up":
-		// "on-scroll-down":
-		// "smooth-scrolling-threshold":
-		// "tooltip":
 		"tooltip-format": "<b>Gateway</b>: {gwaddr}",
 		"tooltip-format-ethernet": "<b>Interface</b>: {ifname}",
 		"tooltip-format-wifi": "<b>Network</b>: {essid}\n<b>IP Addr</b>: {ipaddr}/{cidr}\n<b>Strength</b>: {signalStrength}%\n<b>Frequency</b>: {frequency} GHz",
 		"tooltip-format-disconnected": "Wi-Fi Disconnected",
 		"tooltip-format-disabled": "Wi-Fi Disabled"
-		// "menu":
-		// "menu-file":
-		// "menu-actions":
-		// "expand":
 	}
 }

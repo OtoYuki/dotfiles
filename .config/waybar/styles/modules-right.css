@@ -1,59 +1,150 @@
-/*----------------
-    Media info
-----------------*/
+/* ==========================================================================
+   Right Section: Media Island & Unified Hardware Instrument Deck
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Media Island (Now Playing Pod)
+   -------------------------------------------------------------------------- */
 
 #mpris {
-	padding: 0 12px;
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 3px 16px 3px 36px;
+	margin: 2px 0;
+	color: @sota-bone;
+	background-image: url("/home/s1re/.config/waybar/assets/icons/mpris.svg");
+	background-repeat: no-repeat;
+	background-position: 11px center;
+	background-size: 16px 16px;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.08);
+	transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/*------------
-    Volume
-------------*/
-
-#custom-left_div.6 {
-	color: @volume;
-}
-#pulseaudio,
-#wireplumber {
-	background-color: @volume;
+#mpris:hover {
+	border-color: @sota-border;
+	background-color: @sota-panel-hover;
 }
 
-/*----------------
-    Brightness
-----------------*/
+/* --------------------------------------------------------------------------
+   Unified Hardware Deck (Single Precision-Machined Console)
+   -------------------------------------------------------------------------- */
 
-#custom-left_div.7 {
-	background-color: @volume;
-	color: @backlight;
-}
-#backlight {
-	background-color: @backlight;
-}
-
-/*-------------
-    Battery
--------------*/
-
-#custom-left_div.8 {
-	background-color: @backlight;
-	color: @battery;
-}
-#battery {
-	background-color: @battery;
-}
-#custom-left_inv.2 {
-	color: @battery;
+#hardware {
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 0;
+	margin: 2px 0;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.08);
 }
 
-/*----------------
-    Power menu
-----------------*/
-
-#custom-power {
-	border-radius: 16px;
-	padding: 0 19px 0 16px;
-	color: @accent;
+#hardware > *,
+#hardware #cpu,
+#hardware #memory,
+#hardware #pulseaudio,
+#hardware #battery,
+#hardware #network {
+	border: none;
+	background: transparent;
+	margin: 0;
+	padding: 3px 14px 3px 34px;
+	border-right: 1px solid @sota-border;
+	color: @sota-bone;
+	transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-#custom-power:hover {
-	background-color: @hover-bg;
+
+#hardware > *:last-child,
+#hardware #network {
+	border-right: none;
+}
+
+#hardware > *:hover,
+#hardware #cpu:hover,
+#hardware #memory:hover,
+#hardware #pulseaudio:hover,
+#hardware #battery:hover,
+#hardware #network:hover {
+	background-color: @sota-panel-hover;
+	color: @sota-bone;
+}
+
+/* Bespoke Vector Icon Placements inside Hardware Deck */
+
+#hardware #cpu {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/cpu.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+}
+
+#hardware #memory {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/memory.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+}
+
+#hardware #pulseaudio.output {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/volume.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+}
+
+#hardware #pulseaudio.output.bluetooth {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/volume-headphone.svg");
+}
+
+#hardware #pulseaudio.output.muted {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/volume-muted.svg");
+}
+
+#hardware #battery {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/battery.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+}
+
+#hardware #battery.charging {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/battery-charging.svg");
+}
+
+#hardware #network {
+	background-image: url("/home/s1re/.config/waybar/assets/icons/network.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+}
+
+/* --------------------------------------------------------------------------
+   System Tray
+   -------------------------------------------------------------------------- */
+
+#tray {
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 3px 12px;
+	margin: 2px 0;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.08);
+	transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#tray:hover {
+	border-color: @sota-border;
+}
+
+#tray image {
+	margin: 0 5px;
+}
+
+#tray > .passive {
+	-gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+	-gtk-icon-effect: highlight;
+	border-color: @sota-red;
 }

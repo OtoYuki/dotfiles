@@ -15,6 +15,9 @@ FG_RESET="\e[39m"
 
 TIMEOUT=10
 HELPERS=( aura paru pikaur trizen yay )
+# Minimum seconds between AUR RPC queries (see cooldown guard below).
+AUR_MIN_INTERVAL=1800
+AUR_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/waybar/aur-updates"
 
 printf() {
 	command printf "$@" >&2
@@ -47,7 +50,21 @@ check_updates() {
 		return 0
 	fi
 
-	local aur_output aur_status
+	local aur_output aur_status now stamp
+
+	# Cooldown guard: the AUR RPC rate-limits per IP (HTTP 429) and a ban can
+	# last hours. Never query it more than once per $AUR_MIN_INTERVAL seconds,
+	# no matter how often this module is re-executed.
+	now=$(date +%s)
+	stamp=0
+	[[ -r $AUR_CACHE ]] && read -r stamp aur_output < "$AUR_CACHE"
+	[[ $stamp =~ ^[0-9]+$ ]] || stamp=0
+	[[ $aur_output =~ ^[0-9]+$ ]] || aur_output=0
+
+	if (( now - stamp < AUR_MIN_INTERVAL )); then
+		AUR_UPDATES=${aur_output:-0}
+		return 0
+	fi
 
 	aur_output=$(timeout $TIMEOUT "$HELPER" -Quaq)
 	aur_status=$?
@@ -58,6 +75,13 @@ check_updates() {
 	fi
 
 	AUR_UPDATES=$(grep -c . <<< "$aur_output")
+
+	# Only cache a successful query, so a rate-limited/timed-out lookup
+	# is not remembered as "0 updates" for the whole cooldown.
+	(( aur_status == 0 )) || return 0
+	mkdir -p "${AUR_CACHE%/*}"
+	# NOTE: printf is shadowed above to write to stderr -- use command printf.
+	command printf '%s %s\n' "$now" "$AUR_UPDATES" > "$AUR_CACHE"
 }
 
 update_packages() {
@@ -102,9 +126,6 @@ display_module() {
 }
 
 main() {
-	# Update the module on exit
-	trap "pkill -RTMIN+1 waybar" EXIT
-
 	FAILED=false
 	UPDATES=0
 	AUR_UPDATES=0
@@ -117,6 +138,12 @@ main() {
 			display_module
 			;;
 		*)
+			# Interactive run: refresh the module on exit.
+			# NOTE: never arm this in "module" mode -- waybar's "signal": 1
+			# re-execs the module, so the trap would retrigger itself forever
+			# and hammer the AUR RPC into a 429 rate limit.
+			trap "pkill -RTMIN+1 waybar" EXIT
+
 			printf "%bChecking for updates...%b\n" "$FG_BLUE" "$FG_RESET"
 
 			check_updates

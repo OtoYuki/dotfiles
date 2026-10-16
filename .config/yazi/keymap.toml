@@ -4,3 +4,8 @@
 on   = "T"
 run  = "plugin --sync max-preview"
 desc = "Maximize or restore preview pane"
+
+[[manager.prepend_keymap]]
+on   = [ "g", "a" ]
+run  = "cd ~/ammonite"
+desc = "Go to Ammonite SSD"

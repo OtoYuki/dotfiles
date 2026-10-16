@@ -1,24 +1,98 @@
-/*----------------
-    Workspaces
-----------------*/
+/* ==========================================================================
+   Workspaces & Window Title (Tactical Micro-Indexing)
+   ========================================================================== */
 
-#custom-left_div.1,
-#custom-right_div.1 {
-	color: @workspaces;
-}
 #workspaces {
-	padding: 0 1px;
-	background-color: @workspaces;
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 2px 4px;
+	margin: 2px 0;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.08);
 }
+
+#workspaces button {
+	border-radius: 2px;
+	min-width: 24px;
+	padding: 2px 8px;
+	margin: 1px 2px;
+	background: transparent;
+	border: 1px solid transparent;
+	transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#workspaces button label {
+	color: @sota-pista;
+	font-weight: 800;
+}
+
+#workspaces button.empty label {
+	color: @sota-border;
+	font-weight: 600;
+}
+
+#workspaces button:hover {
+	background-color: @sota-panel-hover;
+	border-color: @sota-border;
+}
+
+#workspaces button:hover label {
+	color: @sota-bone;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+	background-color: @sota-ochre;
+	border-color: @sota-ochre;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
 #workspaces button.active label,
 #workspaces button.focused label {
-	color: @accent;
+	color: @sota-void;
+	font-weight: 900;
 }
 
-/*------------------
-    Window title
-------------------*/
+#workspaces button.urgent {
+	background-color: @sota-acid;
+	border-color: @sota-acid;
+}
+
+#workspaces button.urgent label {
+	color: @sota-void;
+	font-weight: 900;
+}
+
+/* --------------------------------------------------------------------------
+   Window Title (Tactical Mission Context Pod)
+   -------------------------------------------------------------------------- */
 
 #window {
-	margin: 0 12px;
+	background-color: @sota-panel;
+	border: 1px solid @sota-border-sub;
+	border-radius: 2px;
+	padding: 3px 14px 3px 34px;
+	margin: 2px 0 2px 6px;
+	color: @sota-bone;
+	box-shadow: inset 0 1px 0 rgba(216, 166, 100, 0.08);
+	background-image: url("/home/s1re/.config/waybar/assets/icons/window.svg");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	background-size: 16px 16px;
+	transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#window:hover {
+	border-color: @sota-border;
+	background-color: @sota-panel-hover;
+}
+
+#window label {
+	color: @sota-bone;
+}
+
+window#waybar.empty #window {
+	opacity: 0;
+	margin: 0;
+	padding: 0;
 }

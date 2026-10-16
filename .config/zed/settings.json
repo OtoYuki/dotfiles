@@ -14,9 +14,9 @@
     },
     "default_profile": "write",
     "default_model": {
-      "effort": "high",
+      "effort": "medium",
       "provider": "zed.dev",
-      "model": "claude-sonnet-4-6",
+      "model": "gpt-5.3-codex",
       "enable_thinking": true
     },
     "favorite_models": [],

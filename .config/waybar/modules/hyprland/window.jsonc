@@ -1,19 +1,14 @@
 {
 	"hyprland/window": {
-		"format": "{}",
+		"format": "<span font_family='Goga' font_size='9pt' font_weight='bold' foreground='#5A6042'>ACT //</span> <span font_family='Geist Mono' font_weight='bold' foreground='#FBFFE1'>{}</span>",
 		"rewrite": {
-			"": "Desktop",
+			"": "<span font_family='Geist Mono' foreground='#5A6042'>Desktop</span>",
 			"kitty": "Terminal",
 			"zsh": "Terminal",
 			"~": "Terminal"
 		},
-		// "separate-outputs":
-		// "icon":
-		// "icon-size":
-		// "min-length":
-		// "max-length":
-		// "tooltip":
+		"separate-outputs": true,
+		"max-length": 36,
 		"swap-icon-label": false
-		// "expand":
 	}
 }
