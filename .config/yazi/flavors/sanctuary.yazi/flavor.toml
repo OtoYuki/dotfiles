@@ -1,0 +1,81 @@
+# Sanctuary Yazi Flavor - Pine Forest, Ginkgo Amber & Terracotta
+
+[mgr]
+cwd = { fg = "#d8a664", italic = true, bold = true }
+
+# Find
+find_keyword  = { fg = "#999208", bold = true, italic = true, underline = true }
+find_position = { fg = "#d8a664", bg = "reset", bold = true, italic = true }
+
+# Symlink
+symlink_target = { italic = true }
+
+# Marker
+marker_copied   = { fg = "#d1cf8b", bg = "#d1cf8b" }
+marker_cut      = { fg = "#be5d3c", bg = "#be5d3c" }
+marker_marked   = { fg = "#f4c973", bg = "#f4c973" }
+marker_selected = { fg = "#d8a664", bg = "#d8a664" }
+
+# Count
+count_copied   = { fg = "#141c10", bg = "#d1cf8b" }
+count_cut      = { fg = "#141c10", bg = "#be5d3c" }
+count_selected = { fg = "#141c10", bg = "#d8a664" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#5a6042" }
+
+[tabs]
+active   = { fg = "#141c10", bg = "#d8a664", bold = true }
+inactive = { fg = "#fbffe1", bg = "#334234" }
+
+sep_inner = { open = "", close = "" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#141c10", bg = "#fbffe1", bold = true }
+normal_alt  = { fg = "#fbffe1", bg = "#334234" }
+
+select_main = { fg = "#141c10", bg = "#d8a664", bold = true }
+select_alt  = { fg = "#fbffe1", bg = "#5a6042" }
+
+unset_main = { fg = "#141c10", bg = "#999208", bold = true }
+unset_alt  = { fg = "#fbffe1", bg = "#5a6042" }
+
+[status]
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#334234", bg = "#334234" }
+
+progress_label  = { fg = "#fbffe1", bold = true }
+progress_normal = { fg = "#334234", bg = "#141c10" }
+progress_error  = { fg = "#be5d3c", bg = "#141c10" }
+
+permissions_t = { fg = "#999208" }
+permissions_r = { fg = "#d8a664" }
+permissions_w = { fg = "#be5d3c" }
+permissions_x = { fg = "#d1cf8b" }
+permissions_s = { fg = "#5a6042" }
+
+[which]
+mask            = { bg = "#141c10" }
+cand            = { fg = "#d8a664" }
+rest            = { fg = "#d1cf8b" }
+desc            = { fg = "#fbffe1" }
+separator       = "  "
+separator_style = { fg = "#5a6042" }
+
+[filetype]
+rules = [
+    { mime = "image/*", fg = "#d8a664" },
+    { mime = "video/*", fg = "#f4c973" },
+    { mime = "audio/*", fg = "#d1cf8b" },
+    { mime = "application/zip", fg = "#be5d3c" },
+    { mime = "application/x-tar", fg = "#be5d3c" },
+    { mime = "application/x-bzip*", fg = "#be5d3c" },
+    { mime = "application/x-7z-compressed", fg = "#be5d3c" },
+    { mime = "application/x-rar", fg = "#be5d3c" },
+    { mime = "application/pdf", fg = "#999208" },
+    { name = "*", fg = "#fbffe1" },
+    { name = "*/", fg = "#999208" }
+]

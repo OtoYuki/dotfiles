@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# cf <profile> <args...> — run wrangler with an isolated per-account login.
+# Profiles live in ~/.config/cli-profiles/<profile>/ (used as XDG_CONFIG_HOME).
+set -euo pipefail
+root="$HOME/.config/cli-profiles"
+if [[ $# -lt 1 || ! -d "$root/$1" ]]; then
+  echo "usage: cf <profile> <wrangler args...>   profiles: $(command ls "$root" | tr '\n' ' ')" >&2
+  exit 2
+fi
+profile=$1; shift
+bin=$(mise which wrangler)   # resolve before XDG_CONFIG_HOME moves mise's config
+orig_xdg=${XDG_CONFIG_HOME-}
+
+# The CLI must never launch the browser itself: Firefox derives its profile path from
+# XDG_CONFIG_HOME, so a child with the profile dir can't reach the running instance.
+# Open URLs from the original environment instead -> new tab in the existing Firefox.
+open_url() {
+  if [[ -n $orig_xdg ]]; then XDG_CONFIG_HOME=$orig_xdg setsid xdg-open "$1" >/dev/null 2>&1 &
+  else env -u XDG_CONFIG_HOME setsid xdg-open "$1" >/dev/null 2>&1 &
+  fi
+}
+
+dir="$root/$profile"
+# Overlay every other ~/.config entry so spawned tools see the normal config; only the
+# CLI's own login store stays profile-local.
+shopt -s nullglob dotglob
+for e in "$HOME/.config"/*; do
+  name=${e##*/}
+  case $name in netlify|.wrangler|cli-profiles) continue ;; esac
+  [[ -e "$dir/$name" || -L "$dir/$name" ]] || ln -s "$e" "$dir/$name"
+done
+export XDG_CONFIG_HOME="$dir"
+
+if [[ ${1-} == login ]]; then
+  shift
+  set +e
+  "$bin" login --browser=false "$@" | while IFS= read -r line; do
+    printf '%s\n' "$line"
+    if [[ $line =~ (https://dash\.cloudflare\.com/oauth2/auth[^[:space:]]*) ]]; then
+      open_url "${BASH_REMATCH[1]}"
+    fi
+  done
+  exit "${PIPESTATUS[0]}"
+fi
+exec "$bin" "$@"

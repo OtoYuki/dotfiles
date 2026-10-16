@@ -1,0 +1,12 @@
+{
+	"group/hardware": {
+		"orientation": "horizontal",
+		"modules": [
+			"cpu",
+			"memory",
+			"pulseaudio#output",
+			"battery",
+			"network"
+		]
+	}
+}

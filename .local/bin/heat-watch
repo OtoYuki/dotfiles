@@ -1,0 +1,288 @@
+#!/usr/bin/python3
+"""heat-watch: attribute CPU heat to its owner, reap stray helpers, warn about sustained heat.
+
+  heat-watch            run the daemon (what heat-watch.service does)
+  heat-watch top        one 3 s sample: temp, fans, CPU by cgroup, strays it would act on
+  --dry-run             log what would be killed, touch nothing
+
+Policy, in order of aggression (every action is logged to the journal and notified):
+  1. STRAY  Playwright-MCP browsers (user-data-dir under ~/.cache/ms-playwright-mcp) are killed when
+            they are orphaned (parent gone, reparented to systemd) for 2 samples, or when the browser
+            tree burns >= MCP_CPU for MCP_SECS straight. They respawn on the next MCP call, so a wrong
+            call costs one browser launch. Other leaked dev helpers (next/vite/esbuild/playwright
+            workers/headless shell) are killed only when orphaned AND >= ORPHAN_CPU for ORPHAN_SECS.
+  2. ALERT  Package >= ALERT_C for ALERT_SECS is journaled with the top offenders and raises one
+            notification per ALERT_NOTE_COOLDOWN naming the hottest scope, so the user decides what to stop.
+
+Legit work is never killed, niced or CPU-capped: the user's rule (2026-10-10) is never to throttle an app.
+The CLAMP stage that capped the hottest kitty/app scope's CPUQuota was removed that day; at start-up the
+daemon lifts any CPUQuota a previous version left on a kitty-/app- scope.
+"""
+import collections
+import glob
+import json
+import os
+import re
+import signal
+import subprocess
+import sys
+import time
+
+E = os.environ.get
+DRY = "--dry-run" in sys.argv
+HOME = os.path.expanduser("~")
+MCP_DIR = f"{HOME}/.cache/ms-playwright-mcp/"
+TICK = float(E("TICK", 5))
+MCP_CPU, MCP_SECS = float(E("MCP_CPU", 50)), float(E("MCP_SECS", 120))
+ORPHAN_CPU, ORPHAN_SECS = float(E("ORPHAN_CPU", 15)), float(E("ORPHAN_SECS", 60))
+ALERT_C, ALERT_SECS = float(E("ALERT_C", 90)), float(E("ALERT_SECS", 45))
+ALERT_NOTE_COOLDOWN = float(E("ALERT_NOTE_COOLDOWN", 900))  # at most one "running hot" popup per 15 min
+APP_SCOPE = re.compile(r"^(kitty-|app-).*\.scope$")  # where an old version may have left a CPUQuota
+LEAK_RE = re.compile(
+    r"next dev|next-server|/vite/bin/vite|esbuild --service|playwright/lib/worker|chrome-headless-shell"
+    r"|@playwright/mcp|playwright-mcp|playwright test"
+)
+STATUS = f"{E('XDG_RUNTIME_DIR', '/tmp')}/heat-watch.json"
+HZ = os.sysconf("SC_CLK_TCK")
+NCPU = os.cpu_count() or 1
+
+
+def log(msg):
+    print(msg, flush=True)
+
+
+def hwmon(name):
+    for p in glob.glob("/sys/class/hwmon/hwmon*"):
+        try:
+            if open(f"{p}/name").read().strip() == name:
+                return p
+        except OSError:
+            pass
+
+
+CORE, HPMON = hwmon("coretemp"), hwmon("hp")
+
+
+def pkg_temp():
+    return int(open(f"{CORE}/temp1_input").read()) / 1000.0
+
+
+def fans():
+    try:
+        return [int(open(f"{HPMON}/fan{i}_input").read()) for i in (1, 2)]
+    except (OSError, TypeError):
+        return []
+
+
+def scan():
+    """pid -> dict(ppid, ticks, comm, cmd, unit). One pass over /proc, tolerant of races."""
+    out = {}
+    for d in os.listdir("/proc"):
+        if not d.isdigit():
+            continue
+        try:
+            raw = open(f"/proc/{d}/stat").read()
+            comm = raw[raw.index("(") + 1 : raw.rindex(")")]
+            f = raw[raw.rindex(")") + 2 :].split()
+            cmd = open(f"/proc/{d}/cmdline", "rb").read().replace(b"\0", b" ").decode(errors="replace").strip()
+            cg = open(f"/proc/{d}/cgroup").read().strip().rsplit("/", 1)[-1]
+            out[int(d)] = dict(ppid=int(f[1]), ticks=int(f[11]) + int(f[12]), comm=comm, cmd=cmd or f"[{comm}]", unit=cg)
+        except (OSError, ValueError):
+            continue
+    return out
+
+
+def cpu_pct(prev, cur, dt):
+    for pid, p in cur.items():
+        q = prev.get(pid)
+        p["cpu"] = max(0.0, (p["ticks"] - q["ticks"]) / HZ / dt * 100) if q and q["cmd"] == p["cmd"] else 0.0
+
+
+def user_manager(procs):
+    for pid, p in procs.items():
+        if p["cmd"].startswith("/usr/lib/systemd/systemd --user") and p["ppid"] == 1:
+            return pid
+    return 1
+
+
+def mcp_groups(procs):
+    """Playwright-MCP browsers keyed by user-data-dir: {dir: dict(pids, main, cpu)}."""
+    g = {}
+    for pid, p in procs.items():
+        m = re.search(r"--user-data-dir=(\S+)", p["cmd"])
+        if not m or not m.group(1).startswith(MCP_DIR):
+            continue
+        e = g.setdefault(m.group(1), dict(pids=[], main=None, cpu=0.0))
+        e["pids"].append(pid)
+        e["cpu"] += p["cpu"]
+        if " --type=" not in p["cmd"] and "chrome_crashpad" not in p["comm"]:
+            e["main"] = pid
+    return g
+
+
+def notify(title, body, urgency="normal"):
+    """Desktop notification. Reserved for events the user cannot see coming (a kill, or heat sustained past ALERT_C,
+    at most once per cooldown); everything else goes to the journal only. Styled by ~/.config/swaync/style.css."""
+    log(f"NOTIFY[{urgency}] {title} :: {body}")
+    if DRY:
+        return
+    subprocess.run(
+        ["notify-send", "-a", "heat-watch", "-u", urgency, "-h", "string:x-canonical-private-synchronous:heat-watch",
+         "-t", "7000", title, body],
+        check=False, timeout=5,
+    )
+
+
+def short_cmd(cmd):
+    """'/x/target/debug/deps/press1_http-3d2ed6adeef47a51 --quiet' -> 'press1_http'; node/python -> script name."""
+    toks = [t for t in cmd.split() if not t.startswith("-")]
+    while toks and os.path.basename(toks[0]) in ("node", "python", "python3", "npm", "pnpm", "sh", "bash", "exec"):
+        toks.pop(0)
+    name = os.path.basename(toks[0]) if toks else cmd[:24]
+    return re.sub(r"-[0-9a-f]{12,}$", "", name)[:28]
+
+
+def where(pid):
+    """Working dir of a pid as ~/..., '' if gone."""
+    try:
+        return os.readlink(f"/proc/{pid}/cwd").replace(HOME, "~", 1)
+    except OSError:
+        return ""
+
+
+def kill_tree(pids, why):
+    log(f"{'WOULD KILL' if DRY else 'KILL'} {why} pids={sorted(pids)}")
+    if DRY:
+        return
+    for sig, wait in ((signal.SIGTERM, 4), (signal.SIGKILL, 0)):
+        alive = []
+        for pid in pids:
+            try:
+                os.kill(pid, sig)
+                alive.append(pid)
+            except ProcessLookupError:
+                pass
+        if not alive or not wait:
+            return
+        time.sleep(wait)
+        pids = [p for p in alive if os.path.exists(f"/proc/{p}")]
+        if not pids:
+            return
+
+
+def lift_leftover_quotas():
+    """Clears a CPUQuota an older heat-watch (which clamped) left on an app scope, e.g. after SIGKILL."""
+    r = subprocess.run(["systemctl", "--user", "list-units", "--type=scope", "--no-legend", "--plain"], capture_output=True, text=True)
+    for unit in (line.split()[0] for line in r.stdout.splitlines() if line.strip()):
+        if not APP_SCOPE.match(unit):
+            continue
+        q = subprocess.run(["systemctl", "--user", "show", unit, "-p", "CPUQuotaPerSecUSec", "--value"], capture_output=True, text=True).stdout.strip()
+        if q and q != "infinity":
+            log(f"{'WOULD LIFT' if DRY else 'LIFT'} leftover CPUQuota on {unit} ({q})")
+            if not DRY:
+                subprocess.run(["systemctl", "--user", "set-property", "--runtime", unit, "CPUQuota="], capture_output=True)
+
+
+def groups(procs):
+    g = collections.defaultdict(lambda: dict(cpu=0.0, top=(0.0, "", 0)))
+    for pid, p in procs.items():
+        e = g[p["unit"]]
+        e["cpu"] += p["cpu"]
+        if p["cpu"] > e["top"][0]:
+            e["top"] = (p["cpu"], p["cmd"][:90], pid)
+    return sorted(g.items(), key=lambda kv: -kv[1]["cpu"])
+
+
+def sample(prev=None, wait=TICK):
+    prev = prev or scan()
+    time.sleep(wait)
+    cur = scan()
+    cpu_pct(prev, cur, wait)
+    return cur
+
+
+def cmd_top():
+    procs = sample(wait=3)
+    um = user_manager(procs)
+    print(f"pkg {pkg_temp():.0f}C  fans {fans()} RPM  load {open('/proc/loadavg').read().split()[0]}  NCPU {NCPU}")
+    for unit, e in groups(procs)[:8]:
+        print(f"{e['cpu']:7.0f}%  {unit[:42]:42}  {e['top'][1]}")
+    for d, e in mcp_groups(procs).items():
+        orphan = e["main"] is None or procs[e["main"]]["ppid"] in (1, um)
+        print(f"mcp-browser {d.rsplit('/', 1)[-1]}  cpu {e['cpu']:.0f}%  {'ORPHAN' if orphan else 'owned'}")
+
+
+def main():
+    streak = collections.Counter()  # keyed conditions -> consecutive seconds
+    last_alert = last_alert_note = 0.0
+    hot_secs = 0.0
+
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+    signal.signal(signal.SIGINT, lambda *_: sys.exit(0))
+    log(f"heat-watch up dry_run={DRY} tick={TICK}s")
+    lift_leftover_quotas()
+    prev = scan()
+    while True:
+        cur = sample(prev)
+        prev = cur
+        t = pkg_temp()
+        um = user_manager(cur)
+        grp = groups(cur)
+
+        # 1a. Playwright-MCP browsers: orphaned, or burning CPU for too long.
+        seen = set()
+        for d, e in mcp_groups(cur).items():
+            seen.add(d)
+            orphan = e["main"] is None or cur[e["main"]]["ppid"] in (1, um)
+            streak[("mcp-orphan", d)] = streak[("mcp-orphan", d)] + TICK if orphan else 0
+            streak[("mcp-hot", d)] = streak[("mcp-hot", d)] + TICK if e["cpu"] >= MCP_CPU else 0
+            why = tag = None
+            if streak[("mcp-orphan", d)] >= 2 * TICK:
+                why, tag = f"orphaned Playwright-MCP browser {d.rsplit('/', 1)[-1]} ({e['cpu']:.0f}% CPU)", "orphaned"
+            elif streak[("mcp-hot", d)] >= MCP_SECS:
+                why, tag = f"Playwright-MCP browser {d.rsplit('/', 1)[-1]} at >={MCP_CPU:.0f}% CPU for {MCP_SECS:.0f}s", f"{e['cpu']:.0f}% for {MCP_SECS:.0f}s"
+            if why:
+                kill_tree(e["pids"], why)
+                notify("Stray browser reaped", f"playwright-mcp · {tag}\npkg {t:.0f}°C · relaunches on next use")
+                streak[("mcp-orphan", d)] = streak[("mcp-hot", d)] = 0
+        for k in [k for k in streak if k[0].startswith("mcp") and k[1] not in seen]:
+            del streak[k]
+
+        # 1b. Orphaned dev helpers that are hot.
+        live = set()
+        for pid, p in cur.items():
+            if p["ppid"] in (1, um) and LEAK_RE.search(p["cmd"]) and "heat-watch" not in p["cmd"]:
+                k = ("leak", pid, p["cmd"])
+                live.add(k)
+                streak[k] = streak[k] + TICK if p["cpu"] >= ORPHAN_CPU else 0
+                if streak[k] >= ORPHAN_SECS:
+                    why = f"orphaned helper pid {pid} ({p['cpu']:.0f}% CPU): {p['cmd'][:80]}"
+                    kill_tree([pid], why)
+                    notify("Orphaned helper reaped", f"{short_cmd(p['cmd'])} · {p['cpu']:.0f}%\n{where(pid) or 'cwd gone'} · pkg {t:.0f}°C")
+                    streak[k] = 0
+        for k in [k for k in streak if k[0] == "leak" and k not in live]:
+            del streak[k]
+
+        # 2. Sustained heat: journal the top offenders and tell the user once per cooldown. Never cap anything.
+        hot_secs = hot_secs + TICK if t >= ALERT_C else 0
+        if hot_secs >= ALERT_SECS and time.monotonic() - last_alert > 300:
+            last_alert = time.monotonic()
+            top = "; ".join(f"{u[:28]} {e['cpu']:.0f}% ({e['top'][1][:40]})" for u, e in grp[:3])
+            log(f"HOT pkg={t:.0f}C for {hot_secs:.0f}s fans={fans()} :: {top}")
+            if grp and time.monotonic() - last_alert_note > ALERT_NOTE_COOLDOWN:
+                last_alert_note = time.monotonic()
+                u, e = grp[0]
+                notify("Running hot", f"pkg {t:.0f}°C for {hot_secs:.0f}s · fans {fans()}\nhottest: {short_cmd(e['top'][1])} · {e['cpu']:.0f}% · {where(e['top'][2]) or u}")
+
+        try:
+            json.dump(dict(ts=time.time(), pkg_c=t, fans=fans(),
+                           top=[(u, round(e["cpu"]), e["top"][1]) for u, e in grp[:5]]), open(STATUS, "w"))
+        except OSError:
+            pass
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "top":
+        cmd_top()
+    else:
+        main()

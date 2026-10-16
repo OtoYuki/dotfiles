@@ -1,0 +1,5 @@
+#!/bin/sh
+# hypridle resume: restore the brightness saved by idle-dim, then forget it.
+f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypridle-brightness"
+[ -e "$f" ] || exit 0
+brightnessctl set "$(cat "$f")" && rm -f "$f"

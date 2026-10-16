@@ -1,0 +1,27 @@
+# Wallust configuration for Hyprland setup
+# Docs: https://codeberg.org/explosion-mental/wallust
+
+backend = "resized"
+color_space = "lab"
+palette = "dark16"
+check_contrast = true
+
+[templates]
+# Hyprland config theme snippet
+hyprland = { template = "hyprland.conf", target = "~/.config/hypr/theme.conf" }
+
+# Hyprland lua theme snippet
+hyprland_lua = { template = "hyprland.lua", target = "~/.config/hypr/theme.lua" }
+
+# Waybar CSS theme
+waybar = { template = "waybar.css", target = "~/.config/waybar/theme.css" }
+
+# Kitty terminal theme
+# kitty is NOT themed by wallust since 2026-10-10: it uses the fixed s1re brand palette
+# (~/.config/kitty/theme.conf, from ~/dev/s1re tokens). Re-enable to make it follow the wallpaper again:
+# kitty = { template = "kitty.conf", target = "~/.config/kitty/theme.conf" }
+
+# Rofi launcher theme
+rofi = { template = "rofi.rasi", target = "~/.config/rofi/theme.rasi" }
+
+

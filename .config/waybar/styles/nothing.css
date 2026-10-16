@@ -1,0 +1,25 @@
+/* ==========================================================================
+   SOTA Earthy-Industrial Micrographics Palette
+   Strict adherence to user swatch tokens:
+   - #141C10 : Void Black Chassis (100% Solid Opaque)
+   - #999208 : Acid Olive / Chartreuse
+   - #D8A664 : Warm Ochre / Apricot Hero
+   - #5A6042 : Weathered Army Moss / Technical Border
+   - #D1CF8B : Pistachio Cream / Telemetry
+   - #FBFFE1 : Bone Ivory / Primary Text
+   ========================================================================== */
+
+@define-color sota-void        #141C10;
+@define-color sota-acid        #999208;
+@define-color sota-ochre       #D8A664;
+@define-color sota-border      #5A6042;
+@define-color sota-pista       #D1CF8B;
+@define-color sota-bone        #FBFFE1;
+
+/* 100% Solid Opaque Tokens (Zero Transparency) */
+@define-color sota-bg          #141C10;
+@define-color sota-panel       #1c2517;
+@define-color sota-panel-hover #2c3820;
+@define-color sota-border-sub  #3b442b;
+@define-color sota-red         #BE5D3C;
+@define-color sota-crit        #E85526;

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Antigravity CLI binary wrapper — auto-enforces --dangerously-skip-permissions by default.
+
+REAL_BIN="$(dirname "$0")/agy-real"
+
+# Allow opting out via --safe
+has_skip=0
+has_safe=0
+args=()
+
+for arg in "$@"; do
+  if [[ "$arg" == "--dangerously-skip-permissions" ]]; then
+    has_skip=1
+    args+=("$arg")
+  elif [[ "$arg" == "--safe" ]]; then
+    has_safe=1
+  else
+    args+=("$arg")
+  fi
+done
+
+if [[ $has_safe -eq 1 ]]; then
+  exec "$REAL_BIN" "${args[@]}"
+elif [[ $has_skip -eq 1 ]]; then
+  exec "$REAL_BIN" "${args[@]}"
+else
+  exec "$REAL_BIN" --dangerously-skip-permissions "${args[@]}"
+fi

@@ -1,0 +1,26 @@
+{
+  "wallpaper": "/home/s1re/Pictures/wallpapers/sanctuary.png",
+  "special": {
+    "background": "#111612",
+    "foreground": "#EDE6D3",
+    "cursor": "#DE9354"
+  },
+  "colors": {
+    "color0": "#111612",
+    "color1": "#CC6646",
+    "color2": "#93AA80",
+    "color3": "#D6B26E",
+    "color4": "#86A3A2",
+    "color5": "#BC8473",
+    "color6": "#7FAE97",
+    "color7": "#D4C49F",
+    "color8": "#97A396",
+    "color9": "#E2876A",
+    "color10": "#B1C79C",
+    "color11": "#E8CB91",
+    "color12": "#A6C0BE",
+    "color13": "#D6A595",
+    "color14": "#A0C9B4",
+    "color15": "#EDE6D3"
+  }
+}

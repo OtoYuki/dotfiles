@@ -1,0 +1,6 @@
+#!/bin/sh
+# hypridle dim: remember the pre-dim brightness once. A second dim without an
+# intervening restore must not overwrite the saved value with the dimmed one.
+f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypridle-brightness"
+[ -e "$f" ] || brightnessctl get > "$f"
+brightnessctl set 10%
