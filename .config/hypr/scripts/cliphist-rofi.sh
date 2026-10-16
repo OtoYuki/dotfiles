@@ -11,7 +11,8 @@ echo "$(date): Script called" >> "$tmp_dir/log.txt"
 
 function preview_entry() {
     local selection=$1
-    local id=$(echo "$selection" | cut -f1)
+    local id
+    id=$(echo "$selection" | cut -f1)
     
     if [[ "$selection" == *"[[ binary data"* ]]; then
         # IMAGE PREVIEW

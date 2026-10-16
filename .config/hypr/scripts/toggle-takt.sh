@@ -6,8 +6,8 @@ if pgrep -x takt >/dev/null 2>&1; then
     killall -q takt
 else
     if command -v hyprctl >/dev/null 2>&1; then
-        hyprctl dispatch 'hl.dsp.exec_cmd("/home/s1re/.local/bin/takt")' >/dev/null 2>&1 || "$HOME/.local/bin/takt" >/dev/null 2>&1 &
+        hyprctl dispatch "hl.dsp.exec_cmd(\"$(command -v takt || echo "$HOME/.local/bin/takt")\")" >/dev/null 2>&1 || takt >/dev/null 2>&1 &
     else
-        "$HOME/.local/bin/takt" >/dev/null 2>&1 &
+        takt >/dev/null 2>&1 &
     fi
 fi

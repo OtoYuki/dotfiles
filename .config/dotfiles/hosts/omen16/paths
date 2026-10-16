@@ -1,0 +1,7 @@
+# Files that only make sense on this machine. On any other host the installer removes
+# them from the work tree and marks them skip-worktree, so `config status` stays clean.
+.config/uwsm/env-hyprland
+.config/wireplumber/wireplumber.conf.d/50-omen16-devices.conf
+.config/wireplumber/wireplumber.conf.d/60-omen16-dsp.conf
+.config/systemd/user/pipewire.service.d/ladspa-path.conf
+.config/environment.d/50-audio-plugins.conf

@@ -1,0 +1,72 @@
+/* Sanctuary skin for swaync — tokens mirror ~/.config/waybar/styles/nothing.css (sota-*).
+   Base structure comes from the stock stylesheet; this only re-themes it. */
+@import url("/etc/xdg/swaync/style.css");
+
+:root {
+  --cc-bg: rgba(20, 28, 16, 0.96);
+  --noti-border-color: #3b442b;
+  --noti-bg: 20, 28, 16;
+  --noti-bg-alpha: 0.97;
+  --noti-bg-darker: #1c2517;
+  --noti-bg-hover: #1c2517;
+  --noti-bg-focus: #2c3820;
+  --noti-close-bg: #1c2517;
+  --noti-close-bg-hover: #2c3820;
+  --text-color: #FBFFE1;
+  --text-color-disabled: #5A6042;
+  --bg-selected: #D8A664;
+  --border: 1px solid var(--noti-border-color);
+  --border-radius: 2px;
+  --notification-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+  --font-size-body: 12px;
+  --font-size-summary: 13px;
+}
+
+* {
+  font-family: "GeistMono Nerd Font", "Geist Mono", monospace;
+}
+
+/* urgency = left rail: low pewter, normal ochre, critical ember */
+.notification-row .notification-background .notification {
+  border-left: 3px solid #D8A664;
+  box-shadow: var(--notification-shadow);
+}
+
+.notification-row .notification-background .notification.low {
+  border-left-color: #5A6042;
+}
+
+.notification-row .notification-background .notification.normal {
+  border-left-color: #D8A664;
+}
+
+.notification-row .notification-background .notification.critical {
+  border-left-color: #E85526;
+}
+
+.notification-row .notification-background .notification .notification-default-action {
+  padding: 6px 8px;
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary {
+  font-weight: 800;
+  color: #FBFFE1;
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
+  font-weight: 600;
+  color: #D1CF8B;
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time {
+  font-weight: 600;
+  color: #5A6042;
+}
+
+.close-button {
+  border-radius: 2px;
+  min-width: 20px;
+  min-height: 20px;
+  margin-top: 6px;
+  margin-right: 6px;
+}

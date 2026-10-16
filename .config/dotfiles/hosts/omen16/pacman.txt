@@ -1,0 +1,4 @@
+# Extra packages for the OMEN 16 speaker/mic DSP (60-omen16-dsp.conf).
+# Not packaged, built by hand: bankstown (~/.lv2, github.com/chadmed/bankstown) and the
+# DeepFilterNet LADSPA plugin (~/.ladspa, github.com/Rikorose/DeepFilterNet).
+lsp-plugins-lv2

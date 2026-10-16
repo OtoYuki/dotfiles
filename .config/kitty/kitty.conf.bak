@@ -1,8 +1,0 @@
-font_family      0xProto Nerd Font Propo
-bold_font        auto
-italic_font      auto
-bold_italic_font auto
-font_size        11.0
-
-# Optional: Adds a little padding so text doesn't touch the window edge
-window_padding_width 4

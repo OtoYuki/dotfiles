@@ -91,50 +91,15 @@ eval "$(zoxide init zsh)"
 
 # ── mise — env manager ───────────────────────────────────────────────────
 eval "$(mise activate zsh)"
-export PATH="$HOME/.local/bin:$PATH"
+typeset -U path PATH
+path=("$HOME/.local/bin" $path)
 
-# ── Dotfiles alias ─────────────────────────────────────────────────────────
+# ── Dotfiles (bare repo) ─────────────────────────────────────────────────
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-export PATH="$HOME/.local/bin:$PATH"
 
+# ── tmux: attach to (or create) the main session ─────────────────────────
+alias dev="tmux new-session -A -s main"
 
-# Added by Antigravity CLI installer
-export PATH="/home/s1re/.local/bin:$PATH"
-
-# Auto-Attach
-alias dev="tmux new-session -A -s main" 
-
-# ── Adora Local AI Hub ───────────────────────────────────────────────────────
-# Launch the Adora TUI from anywhere.
-# - Sources the workspace .env so all API keys/paths are in scope.
-# - Runs the pre-built release binary directly (no cargo overhead).
-# - Self-bootstraps via `mise exec -- just tui-install` if binary is missing.
-adora() {
-  local workspace="$HOME/dev/adora"
-  local binary="$HOME/.local/bin/adora"
-
-  if [[ ! -x "$binary" ]]; then
-    echo "⚠️  Adora binary not found — running: mise exec -- just tui-install"
-    (cd "$workspace" && mise exec -- just tui-install) || return 1
-  fi
-
-  # Load workspace .env so the binary sees all API keys and configured paths.
-  if [[ -f "$workspace/.env" ]]; then
-    set -a
-    source "$workspace/.env"
-    set +a
-  fi
-
-  "$binary"
-}
-alias sync-bt="sudo mount -t ntfs3 /dev/nvme0n1p3 /mnt/windows && sudo bt-dualboot --sync-all -b --win /mnt/windows && sudo systemctl restart bluetooth"
-
-# Claude Max account — own credentials, shares skills/plugins/memory via symlinks in ~/.claude-2.
-# Original ~/.claude account is archived; ~/.claude-2 is now the default for plain `claude`.
-export CLAUDE_CONFIG_DIR=~/.claude-2
-alias claude2='claude'  # back-compat for muscle memory / scripts
-
-# ── Antigravity (agy) Workflow ───────────────────────────────────────────────
-# agy wrapper at ~/.local/bin/agy auto-applies --dangerously-skip-permissions by default
-alias agy-safe='agy --safe'
+# ── Machine-local, untracked: secrets, work aliases, per-host tweaks ─────
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 

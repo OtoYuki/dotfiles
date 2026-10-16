@@ -13,10 +13,7 @@ PS1='[\u@\h \W]\$ '
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 
-# Added by Antigravity CLI installer
-export PATH="/home/s1re/.local/bin:$PATH"
+[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || export PATH="$HOME/.local/bin:$PATH"
 
-# ── Antigravity (agy) Workflow ───────────────────────────────────────────────
-# agy wrapper at ~/.local/bin/agy auto-applies --dangerously-skip-permissions by default
-alias agy-safe='agy --safe'
-
+# Machine-local, untracked
+[[ -r ~/.bashrc.local ]] && . ~/.bashrc.local

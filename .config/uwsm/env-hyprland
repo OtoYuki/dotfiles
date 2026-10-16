@@ -1,0 +1,163 @@
+# ~/.config/uwsm/env-hyprland
+#
+# Sourced as POSIX shell by uwsm's env preloader (/usr/lib/uwsm/prepare-env.sh)
+# BEFORE Hyprland execs, so AQ_DRM_DEVICES is already in the environment when
+# Aquamarine enumerates GPUs. This has to live here rather than in hyprland.conf
+# because hyprlang has no conditionals and this decision is conditional.
+#
+# ---------------------------------------------------------------------------
+# WHY
+#
+# Which GPU owns which display depends on the BIOS graphics mode, so this file
+# decides at session start instead of hardcoding it.
+#
+#   BIOS = hybrid/Optimus (the old state, before 2026-08-16):
+#     Intel UHD (TGL GT1), PCI 0000:00:02.0  ->  eDP-2     internal panel, 1440p @165
+#     RTX 3060 Mobile,     PCI 0000:01:00.0  ->  HDMI-A-1  external monitor, 1440p @144
+#
+#   BIOS = discrete (current state, set 2026-08-16):
+#     RTX 3060 Mobile,     PCI 0000:01:00.0  ->  eDP-1     internal panel, MUXed to dGPU
+#     RTX 3060 Mobile,     PCI 0000:01:00.0  ->  HDMI-A-1  external monitor
+#     Intel UHD still enumerates, but owns no connected output.
+#
+# The HDMI port is hardwired to the dGPU; that is a board-level fact, not a setting.
+# The internal panel is MUXed, which is why its connector name moves between GPUs.
+#
+# Aquamarine renders the entire desktop on the FIRST device in AQ_DRM_DEVICES and
+# then copies finished frames to any other GPU that owns an output. That copy is
+# not cheap. Hyprland's own log shows what it costs:
+#
+#   GBM: Buffer is marked as multigpu, forcing linear
+#   GBM: Allocated a new buffer ... XR24 with modifier 0x0 : LINEAR
+#   drm: No renderer attached to backend when required for blitting, initializing
+#   CDRMRenderer(drm): Using device /dev/dri/card1
+#   Renderer: NVIDIA GeForce RTX 3060 Laptop GPU/PCIe/SSE2
+#
+# i.e. the shared buffer is forced LINEAR (losing Y-tiling and render compression
+# that the natively-driven output gets), crosses PCIe once per frame, and is then
+# blitted a second time by a whole extra GL renderer on the receiving GPU.
+#
+# Measured 2026-08-14, identical content, 2560x1440 physical pixels on both panels,
+# both rendered by the same GPU, with only the scanout GPU differing:
+#
+#   eDP-2    native  : 157 fps of 165   p95  6.20ms   jitter sd 1.61ms
+#   HDMI-A-1 copied  :  90-100 fps of 144   p95 14-21ms   jitter sd ~4.0ms
+#
+# Turning off blur, shadows and VRR, and toggling software/hardware cursors, moved
+# nothing: all six configurations landed between 90 and 99.6 fps. The copy is the
+# bottleneck, not the effects.
+#
+# So: if the dGPU owns any connected output, put the dGPU first. In hybrid mode
+# that made the external monitor native and moved the copy to the internal panel;
+# in discrete mode the dGPU owns BOTH outputs, so nothing is copied at all.
+# Only when the dGPU owns nothing -- hybrid mode, undocked -- does the iGPU go
+# first so the dGPU can stay powered down.
+#
+# Note the old "keeps the dGPU permanently active" objection does not really apply
+# while docked: measured at idle, the dGPU already sits at ~20% utilisation and
+# 15-19W in the iGPU-primary arrangement purely to service this blit. Blanking the
+# external output takes it to exactly 0.0%. The power was already being spent.
+#
+# ---------------------------------------------------------------------------
+# ESCAPE HATCH
+#
+#   touch ~/.config/uwsm/force-igpu
+#
+# pins the iGPU-first order. Doable from a TTY (Ctrl-Alt-F2) if an NVIDIA-primary
+# session ever fails to come up.
+#
+# It is IGNORED when the iGPU owns no connected output, i.e. in BIOS discrete
+# mode. There it would put the renderer on a GPU that drives nothing, forcing a
+# PCIe copy for every frame of every display -- strictly worse than doing
+# nothing, and no help at all if the NVIDIA driver is the thing that is broken,
+# since the panel physically scans out of the dGPU. To recover from a broken
+# NVIDIA driver in discrete mode you have to change the BIOS setting back.
+# ---------------------------------------------------------------------------
+
+# Resolve by PCI path, not by cardN: DRM card numbering is probe-order dependent
+# and is not guaranteed stable across boots.
+__igpu__=$(readlink -f /dev/dri/by-path/pci-0000:00:02.0-card 2>/dev/null)
+__dgpu__=$(readlink -f /dev/dri/by-path/pci-0000:01:00.0-card 2>/dev/null)
+
+if [ -n "${__igpu__}" ] && [ -n "${__dgpu__}" ]; then
+
+    # Which GPUs actually own a connected output right now?
+    __dgpu_out__=no
+    for __st__ in /sys/class/drm/"${__dgpu__##*/}"-*/status; do
+        [ -e "${__st__}" ] || continue
+        if [ "$(command cat "${__st__}" 2>/dev/null)" = connected ]; then
+            __dgpu_out__=yes
+            break
+        fi
+    done
+
+    __igpu_out__=no
+    for __st__ in /sys/class/drm/"${__igpu__##*/}"-*/status; do
+        [ -e "${__st__}" ] || continue
+        if [ "$(command cat "${__st__}" 2>/dev/null)" = connected ]; then
+            __igpu_out__=yes
+            break
+        fi
+    done
+
+    # force-igpu is honoured only if the iGPU has something to scan out.
+    if [ -e "${HOME}/.config/uwsm/force-igpu" ] && [ "${__igpu_out__}" = yes ]; then
+        AQ_DRM_DEVICES="${__igpu__}:${__dgpu__}"
+        LIBVA_DRIVER_NAME=iHD
+    elif [ "${__dgpu_out__}" = yes ]; then
+        # dGPU owns at least one display: render there so it scans out natively.
+        AQ_DRM_DEVICES="${__dgpu__}:${__igpu__}"
+        LIBVA_DRIVER_NAME=nvidia
+    else
+        # dGPU owns nothing (hybrid mode, undocked): let it power down.
+        AQ_DRM_DEVICES="${__igpu__}:${__dgpu__}"
+        LIBVA_DRIVER_NAME=iHD
+    fi
+    export AQ_DRM_DEVICES
+
+    # The VAAPI driver MUST follow the primary GPU. The primary GPU is the render
+    # node Hyprland advertises to clients, so a client that asks for VAAPI is
+    # handed that device -- and a VAAPI driver refuses a device it does not own.
+    #
+    # Verified 2026-08-16 with mpv, both a H.264 and a VP9 clip, iHD against the
+    # NVIDIA-primary session:
+    #
+    #   DRM_IOCTL_VERSION, unsupported drm device by media driver: nvid
+    #   libva: /usr/lib/dri/iHD_drv_video.so init failed
+    #   [vo/gpu] Loading failed.
+    #   [vd] Using software decoding.        <-- every video frame on the CPU
+    #
+    # With LIBVA_DRIVER_NAME=nvidia the same two clips both report
+    # "[vd] Using hardware decoding (vaapi)". Decode coverage is equivalent for
+    # anything the web actually serves -- both drivers expose AV1 Profile0,
+    # VP9 Profile0, H.264 High and HEVC Main/Main10. iHD additionally has VP9
+    # Profile1/3, HEVC 4:2:2 and SCC; none of that is used by browsers.
+    #
+    # Do NOT put `env = LIBVA_DRIVER_NAME,...` in hyprland.conf: a config env is
+    # applied AFTER this file and would silently pin one driver in both cases.
+    export LIBVA_DRIVER_NAME
+
+    # Firefox runs its media decoder in a sandboxed RDD process that blocks
+    # /dev/nvidia*, so libva-nvidia-driver cannot open the device and logs
+    # "Failed to create VA-API device context" -- even with the Firefox
+    # blocklist already overridden. This is the documented workaround and the
+    # only way to get NVIDIA VA-API in Firefox today.
+    #
+    # SECURITY TRADE-OFF, deliberate: it removes the sandbox from the process
+    # that parses untrusted media. It is therefore set ONLY when the NVIDIA
+    # VA-API driver is actually the one in use -- on the Intel path the sandbox
+    # works fine and stays on. To revert, delete these three lines and relog;
+    # video decode falls back to the CPU.
+    if [ "${LIBVA_DRIVER_NAME}" = nvidia ]; then
+        export MOZ_DISABLE_RDD_SANDBOX=1
+    fi
+
+    unset __dgpu_out__ __igpu_out__ __st__
+fi
+unset __igpu__ __dgpu__
+
+# ---------------------------------------------------------------------------
+# RESOLVED 2026-08-16: the LIBVA_DRIVER_NAME mismatch flagged here is now fixed
+# in the conditional above. It was not theoretical -- video really was falling
+# back to software decode. See the note next to `export LIBVA_DRIVER_NAME`.
+# ---------------------------------------------------------------------------

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Block commits that carry secrets. Runs gitleaks on the staged diff (directly, or through
+# mise if it is not installed). Bypass a confirmed false positive with --no-verify.
+set -euo pipefail
+
+if git diff --cached --name-only --diff-filter=AM | grep -Eq '(^|/)(\.env(\..*)?|id_(rsa|ed25519|ecdsa)|.*\.pem|credentials(\.json)?)$'; then
+    echo "pre-commit: refusing to commit a key/credential file (.env, id_*, *.pem, credentials)" >&2
+    exit 1
+fi
+
+# `gitleaks version` rather than `command -v`: an inactive mise shim exists on PATH but fails.
+if gitleaks version >/dev/null 2>&1; then
+    exec gitleaks git --pre-commit --staged --redact --no-banner .
+elif command -v mise >/dev/null; then
+    exec mise x gitleaks@latest -- gitleaks git --pre-commit --staged --redact --no-banner .
+fi
+
+echo "pre-commit: gitleaks not available (install it or mise); secret scan skipped" >&2

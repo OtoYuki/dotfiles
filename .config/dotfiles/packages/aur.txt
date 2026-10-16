@@ -1,0 +1,9 @@
+# AUR packages, installed with paru or yay (yay-bin is bootstrapped if neither exists).
+
+oh-my-posh-bin
+wallust
+otf-geist
+otf-geist-mono
+ttf-geist-pixel-font-git
+wttrbar
+waybar-module-pacman-updates-git

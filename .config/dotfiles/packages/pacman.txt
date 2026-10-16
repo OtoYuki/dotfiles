@@ -1,0 +1,80 @@
+# Official repo packages. One per line; '#' starts a comment.
+
+# compositor + session
+hyprland
+hyprlock
+hypridle
+hyprshot
+uwsm
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+polkit-kde-agent
+qt5-wayland
+qt6-wayland
+
+# desktop
+awww
+swaync
+rofi
+waybar
+gtk4
+gtk4-layer-shell
+cliphist
+wl-clipboard
+grim
+slurp
+brightnessctl
+ddcutil
+playerctl
+libnotify
+upower
+nwg-look
+xsettingsd
+papirus-icon-theme
+
+# audio / network
+pipewire
+pipewire-pulse
+wireplumber
+libpulse
+networkmanager
+bluez
+bluez-utils
+
+# terminal + shell
+kitty
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+fzf
+eza
+bat
+ripgrep
+fd
+zoxide
+tmux
+btop
+fastfetch
+mise
+
+# yazi + previewers
+yazi
+ffmpegthumbnailer
+7zip
+jq
+poppler
+resvg
+imagemagick
+
+# fonts
+otf-geist-mono-nerd
+ttf-jetbrains-mono-nerd
+noto-fonts
+noto-fonts-emoji
+
+# build + misc
+base-devel
+git
+curl
+rustup
+pacman-contrib
