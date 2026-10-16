@@ -37,27 +37,28 @@ jobs:
   hyprland:
     runs-on: ubuntu-latest
     container: archlinux:latest
-    env:
-      XDG_RUNTIME_DIR: /tmp/xdg
     steps:
-      - run: |
-          pacman -Syu --noconfirm --needed git hyprland
-          install -dm700 /tmp/xdg
+      - run: pacman -Syu --noconfirm --needed git hyprland
       - uses: actions/checkout@v7
-      - name: verify-config (generic machine)
+      - name: verify-config, generic machine and every host profile
+        # Hyprland refuses to run as root, so verify as a normal user.
         run: |
-          install -Dm644 .config/hypr/theme.lua ~/.config/hypr/theme.lua
-          cp -r .config/hypr/hosts ~/.config/hypr/
-          Hyprland --verify-config -c .config/hypr/hyprland.lua | tee /tmp/out
-          grep -q 'config ok' /tmp/out
-      - name: verify-config (each host profile)
-        run: |
-          for m in .config/dotfiles/hosts/*/match; do
-            product=$(head -n1 "$m")
-            sed "s|first_line(\"/sys/class/dmi/id/product_name\")|\"$product\"|" .config/hypr/hyprland.lua > /tmp/host.lua
-            Hyprland --verify-config -c /tmp/host.lua | tee /tmp/out
-            grep -q 'config ok' /tmp/out
-          done
+          useradd -m ricer
+          install -dm700 -o ricer /tmp/xdg
+          mkdir -p /home/ricer/.config && cp -r .config/hypr /home/ricer/.config/ && chown -R ricer: /home/ricer
+          su ricer -c '
+            set -e
+            export XDG_RUNTIME_DIR=/tmp/xdg
+            cd ~/.config/hypr
+            verify() { Hyprland --verify-config -c "$1" | tee /tmp/out; grep -q "config ok" /tmp/out; }
+            verify hyprland.lua
+            for m in '"$GITHUB_WORKSPACE"'/.config/dotfiles/hosts/*/match; do
+              product=$(head -n1 "$m")
+              sed "s|first_line(\"/sys/class/dmi/id/product_name\")|\"$product\"|" hyprland.lua > /tmp/host.lua
+              grep -q "HOSTS\[\"$product\" or" /tmp/host.lua
+              verify /tmp/host.lua
+            done
+          '
 
   install:
     if: github.event_name != 'pull_request'
