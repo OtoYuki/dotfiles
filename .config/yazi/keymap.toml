@@ -1,11 +1,11 @@
 # ~/.config/yazi/keymap.toml
 
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "T"
-run  = "plugin --sync max-preview"
+run  = "plugin toggle-pane max-preview"
 desc = "Maximize or restore preview pane"
 
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "a" ]
 run  = "cd ~/ammonite"
 desc = "Go to Ammonite SSD"

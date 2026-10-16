@@ -12,7 +12,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: shellcheck
         run: |
           git ls-files -z | xargs -0 grep -lIE '^#!.*\b(bash|sh)\b' -- \
@@ -27,19 +27,23 @@ jobs:
   secrets:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   hyprland:
     runs-on: ubuntu-latest
     container: archlinux:latest
+    env:
+      XDG_RUNTIME_DIR: /tmp/xdg
     steps:
-      - run: pacman -Syu --noconfirm --needed git hyprland
-      - uses: actions/checkout@v4
+      - run: |
+          pacman -Syu --noconfirm --needed git hyprland
+          install -dm700 /tmp/xdg
+      - uses: actions/checkout@v7
       - name: verify-config (generic machine)
         run: |
           install -Dm644 .config/hypr/theme.lua ~/.config/hypr/theme.lua
@@ -61,7 +65,7 @@ jobs:
     container: archlinux:latest
     steps:
       - run: pacman -Syu --noconfirm --needed git sudo
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: packages resolve

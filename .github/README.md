@@ -4,6 +4,8 @@
 
 Arch · Hyprland (Lua) · [takt](https://github.com/OtoYuki/takt) · kitty · zsh · yazi · rofi
 
+<img src="assets/desktop.webp" alt="desktop: yazi, fastfetch, Hyprland Lua config under the takt bar">
+
 <img src="assets/palette.svg" alt="Sanctuary palette" width="100%">
 
 </div>
@@ -75,6 +77,8 @@ $ config pull
 | `mod alt F5` / `mod alt F6` | external monitor brightness (DDC/CI) |
 
 ## theme
+
+<img src="assets/wallpaper.webp" alt="empty workspace, sanctuary wallpaper">
 
 `mod alt W` cycles `~/Pictures/wallpapers`. A wallpaper with a matching scheme in `.config/wallust/colorschemes/` (e.g. `sanctuary.json`) uses it; any other is extracted by wallust. Hyprland, waybar and rofi recolour live through [wallust templates](../.config/wallust/templates). kitty, yazi and oh-my-posh stay on Sanctuary.
 

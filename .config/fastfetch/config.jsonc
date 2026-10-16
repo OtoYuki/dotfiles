@@ -46,7 +46,6 @@
         "memory",
         "swap",
         "disk",
-        "localip",
         "battery",
         "locale",
         "break",

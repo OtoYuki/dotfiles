@@ -76,6 +76,6 @@ rules = [
     { mime = "application/x-7z-compressed", fg = "#be5d3c" },
     { mime = "application/x-rar", fg = "#be5d3c" },
     { mime = "application/pdf", fg = "#999208" },
-    { name = "*", fg = "#fbffe1" },
-    { name = "*/", fg = "#999208" }
+    { url = "*", fg = "#fbffe1" },
+    { url = "*/", fg = "#999208" }
 ]
